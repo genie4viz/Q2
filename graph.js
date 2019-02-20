@@ -241,8 +241,8 @@ links = [{
     }
 ];
 
-var nodes = {};
-
+var nodes = [];
+console.log(links,"links")
 // Compute the distinct nodes from the links.
 links.forEach(function (link) {
     link.source = nodes[link.source] ||
@@ -253,6 +253,16 @@ links.forEach(function (link) {
         (nodes[link.target] = {
             name: link.target
         });
+    
+});
+//compute degrees of nodes
+d3.values(nodes).forEach(function(node){
+    node.degree = 0;
+    links.forEach(function(link){
+        if(link.source.name == node.name){
+            node.degree++;
+        }
+    });
 });
 
 var width = 1200,
@@ -281,7 +291,7 @@ var path = svg.append("g")
     .append("path")
     .attr("class", function (d) {
         return "link " + d.type;
-    })
+    });
 
 // add path colour
 
@@ -296,7 +306,7 @@ path.style("stroke", function (d) {
 var node = svg.selectAll(".node")
     .data(force.nodes())
     .enter().append("g")
-    .attr("class", "node")
+    .attr("class", "node")    
     .call(d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
@@ -305,8 +315,12 @@ var node = svg.selectAll(".node")
 
 // add the nodes
 node.append("circle")
-    .attr("r", 10)
-    .on("dblclick", dblclick);
+    .attr("r", d => 5 + d.degree * 2)
+    .on("dblclick", function (d) { //add an asterisk
+        d.fixed = !d.fixed;
+        // console.log("dbl clicked ",d.fixed);        
+        d3.select(this).style("fill", d.fixed == true ? "#ff0000" : "#ccc");        
+    });
 
 // Adding Text (needs to be below)
 node.append("text")
@@ -315,7 +329,7 @@ node.append("text")
     .attr("y", 20)
     .style("text-anchor", "middle")
     .text(function (d) {
-        return d.name
+        return d.name;
     });
 
 // add the curvy lines
@@ -335,13 +349,25 @@ function tick() {
     node
         .attr("transform", function (d) {
             return "translate(" + d.x + "," + d.y + ")";
-        });
+        })
 };
 
-function dblclick(d) {
-    d3.select(this).classed("fixed", d => d.fixed = !d.fixed);
-    d3.select(this).select("circle").style("fill", d => d.fixed ? 'red' : '#ccc');
-}
+// function dblclick(d) {
+//     d3.select(this).classed("fixed", function (d) {
+//         if (d.fixed == true) {
+//             d.fixed = false;
+//         } else {
+//             d.fixed = true;
+//         }
+//     });
+//     d3.select(this).select("circle").style("fill", function (d) {
+//         if (d.fixed == true) {
+//             return 'red';
+//         } else {
+//             return '#ccc';
+//         }
+//     });
+// }
 
 function dragstarted(d) {
     if (!d3.event.active) force.alphaTarget(0.3).restart();
