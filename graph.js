@@ -306,11 +306,7 @@ var node = svg.selectAll(".node")
 // add the nodes
 node.append("circle")
     .attr("r", 10)
-    .on("dblclick", function (d) { //add an asterisk
-        d.fixed = !d.fixed;
-        $this = d3.select(this);
-        $this.classed("bold", !$this.classed("bold"));
-    });
+    .on("dblclick", dblclick);
 
 // Adding Text (needs to be below)
 node.append("text")
@@ -339,24 +335,12 @@ function tick() {
     node
         .attr("transform", function (d) {
             return "translate(" + d.x + "," + d.y + ")";
-        })
+        });
 };
 
 function dblclick(d) {
-    d3.select(this).classed("fixed", function (d) {
-        if (d.fixed == true) {
-            d.fixed = false;
-        } else {
-            d.fixed = true;
-        }
-    });
-    d3.select(this).select("circle").style("fill", function (d) {
-        if (d.fixed == true) {
-            return 'red';
-        } else {
-            return '#ccc';
-        }
-    });
+    d3.select(this).classed("fixed", d => d.fixed = !d.fixed);
+    d3.select(this).select("circle").style("fill", d => d.fixed ? 'red' : '#ccc');
 }
 
 function dragstarted(d) {
