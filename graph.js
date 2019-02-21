@@ -291,11 +291,18 @@ var path = svg.append("g")
     .append("path")
     .attr("class", function (d) {
         return "link " + d.type;
-    });
+    })
+    .style("stroke", d => d.value == 0 ? "green" : "blue")
+    .style("stroke-width", d => d.value == 0 ? 3 : 1);
 
 // add path colour
-
 path.style("stroke", function (d) {
+    if (d.value == 0)
+        return "green";
+    else if (d.value == 1)
+        return "blue";
+})
+path.style("stroke-width", function (d) {
     if (d.value == 0)
         return "green";
     else if (d.value == 1)
